@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - RATE_LIMIT_IP=${RATE_LIMIT_IP}
+      - RATE_LIMIT_TOKEN=${RATE_LIMIT_TOKEN}
+      - BLOCK_DURATION_IP=${BLOCK_DURATION_IP}
+      - BLOCK_DURATION_TOKEN=${BLOCK_DURATION_TOKEN}
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
