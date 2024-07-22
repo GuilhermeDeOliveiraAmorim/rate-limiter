@@ -11,25 +11,22 @@ import (
 )
 
 func main() {
-	// Carrega as variáveis de ambiente do arquivo .env
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Erro ao carregar o arquivo .env")
 	}
 
-	// Configuração do Redis
 	redisHost := os.Getenv("REDIS_HOST")
 	redisPort := os.Getenv("REDIS_PORT")
 
-	redisClient := NewRedisClient(redisHost, redisPort)
+	storage := NewRedisStorage(redisHost, redisPort)
 
-	// Configuração do Rate Limiter
 	rateLimitIP := getEnvAsInt("RATE_LIMIT_IP", 10)
 	rateLimitToken := getEnvAsInt("RATE_LIMIT_TOKEN", 100)
 	blockDurationIP := getEnvAsDuration("BLOCK_DURATION_IP", 300*time.Second)
 	blockDurationToken := getEnvAsDuration("BLOCK_DURATION_TOKEN", 300*time.Second)
 
-	rateLimiter := NewRateLimiter(redisClient, rateLimitIP, rateLimitToken, blockDurationIP, blockDurationToken)
+	rateLimiter := NewRateLimiter(storage, rateLimitIP, rateLimitToken, blockDurationIP, blockDurationToken)
 
 	http.Handle("/", rateLimiter.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello, World!"))
